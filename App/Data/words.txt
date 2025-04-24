@@ -1,0 +1,13 @@
+Bear
+Cat
+Elephant
+FROG
+Giraffe
+Goat
+Lion
+monkey
+panda
+Penguin
+tiger
+Toad
+fish
