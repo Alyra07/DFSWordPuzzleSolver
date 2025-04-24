@@ -1,0 +1,6 @@
+SHE
+DOG
+BIRD
+READ
+CAR
+PET
