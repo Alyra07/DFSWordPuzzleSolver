@@ -2,7 +2,7 @@ using Models;
 
 namespace Services;
 
-// Loads the character grid from /App/Data/grid.txt
+// This class loads the character grid from /App/Data/grid.txt
 public static class GridLoader
 {
     public static Puzzle LoadGrid(string filePath)
@@ -17,13 +17,15 @@ public static class GridLoader
 
         var grid = new char[rows, cols];
 
+        // check if all rows have the same number of columns
         for (int i = 0; i < rows; i++)
         {
             if (lines[i].Length != cols)
                 throw new InvalidOperationException($"Row {i} does not have the expected {cols} columns!");
 
+            // convert each character to uppercase and store in the grid
             for (int j = 0; j < cols; j++)
-                grid[i, j] = char.ToUpper(lines[i][j]); // store uppercase to standardize
+                grid[i, j] = char.ToUpper(lines[i][j]);
         }
 
         return new Puzzle { Grid = grid }; // returns the grid as Puzzle object

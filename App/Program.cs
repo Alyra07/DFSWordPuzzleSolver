@@ -1,34 +1,38 @@
 ﻿using Services;
 using Algorithm;
 using Models;
+
+// Spectre.Console is a library for creating pretty console applications in .NET :)
 using Spectre.Console;
 
 class Program
 {
     static void Main(string[] args)
     {
+        // Load grid & words from /Data files
         var grid = GridLoader.LoadGrid("Data/grid.txt");
         var words = WordLoader.LoadWords("Data/words.txt");
 
+        // Initialize the solver and find words in the grid (DFS)
         var solver = new DfsSolver();
         var results = solver.FindWords(grid, words);
 
-        if (results.Count == 0)
+        if (results.Count == 0) // no words found
         {
             AnsiConsole.MarkupLine("[bold red]No words found! Try editing the words.txt & grid.txt files.[/]");
         }
-        else
+        else // display words found
         {
             AnsiConsole.MarkupLine($"[green bold]{results.Count} out of {words.Count} words found![/]");
             AnsiConsole.WriteLine();
 
-            // Prepare colors
+            // Colors for highlighting found words (from Spectre.Console)
             var colors = new[] { "red", "orange1", "yellow", "lime", "cyan1", "blue", "purple_1", "magenta1" };
 
-            // Draw grid with column headers
+            // Draw grid (letter table with headers)
             var table = new Table();
             table.Border(TableBorder.Square);
-            table.AddColumn(new TableColumn("[grey]pos[/]")); // label column (position)
+            table.AddColumn(new TableColumn("[grey]pos[/]")); // position labels
 
             for (int col = 0; col < grid.Columns; col++)
                 table.AddColumn(new TableColumn($"[grey]{col}[/]")); // column number labels
@@ -46,32 +50,32 @@ class Program
                         .Select((res, idx) => new { Result = res, Color = colors[idx % colors.Length] })
                         .FirstOrDefault(r => r.Result.Positions.Any(p => p.Row == row && p.Col == col));
 
+                    // -> if it is, highlight the cell with corresponding color
                     if (matchingResult != null)
                     {
                         cellText = $"[{matchingResult.Color} bold]{cellText}[/]";
                     }
 
-                    rowCells.Add(cellText);
+                    rowCells.Add(cellText); // add cell text to row
                 }
 
-                table.AddRow(rowCells.ToArray());
+                table.AddRow(rowCells.ToArray()); // add row to table
             }
 
-            AnsiConsole.Write(table);
+            AnsiConsole.Write(table); // print table to the console
             AnsiConsole.WriteLine();
 
-            // List found words
+            // List found colored words with matching positions (row, col)
             for (int i = 0; i < results.Count; i++)
             {
-                var color = colors[i % colors.Length];
+                var color = colors[i % colors.Length]; // same color for same word in the grid
                 var word = results[i];
                 AnsiConsole.MarkupLine($"[bold {color}]Found '{word.Word}'[/] at positions: " +
                     string.Join(", ", word.Positions.Select(p => $"({p.Row},{p.Col})")));
             }
-
             AnsiConsole.WriteLine();
 
-            // List not found words
+            // List not found words (if there are any)
             var foundWords = results.Select(r => r.Word).ToHashSet(StringComparer.OrdinalIgnoreCase);
             var notFoundWords = words.Where(w => !foundWords.Contains(w)).ToList();
 
