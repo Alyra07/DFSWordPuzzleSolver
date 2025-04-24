@@ -7,17 +7,25 @@ public static class GridLoader
 {
     public static Puzzle LoadGrid(string filePath)
     {
-        // Read all lines from the file and store them in a 2D char array
-        var lines = File.ReadAllLines(filePath);
-        int rows = lines.Length;
-        int cols = lines[0].Length;
-        var grid = new char[rows, cols]; // initialize grid with correct size
+        var lines = File.ReadAllLines(filePath)
+                        .Where(line => !string.IsNullOrWhiteSpace(line)) // skip empty lines
+                        .Select(line => line.Replace(" ", "")) // remove spaces
+                        .ToList();
 
-        // Fill the grid with characters from grid.txt
+        int rows = lines.Count; // number of rows
+        int cols = lines[0].Length; // number of columns
+
+        var grid = new char[rows, cols];
+
         for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++)
-                grid[i, j] = lines[i][j];
+        {
+            if (lines[i].Length != cols)
+                throw new InvalidOperationException($"Row {i} does not have the expected {cols} columns!");
 
-        return new Puzzle { Grid = grid }; // returns the populated Puzzle object
+            for (int j = 0; j < cols; j++)
+                grid[i, j] = char.ToUpper(lines[i][j]); // store uppercase to standardize
+        }
+
+        return new Puzzle { Grid = grid }; // returns the grid as Puzzle object
     }
 }
