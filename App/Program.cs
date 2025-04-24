@@ -1,29 +1,88 @@
 ﻿using Services;
 using Algorithm;
 using Models;
+using Spectre.Console;
 
 class Program
 {
     static void Main(string[] args)
     {
-        // Load the grid and words from /Data folder
         var grid = GridLoader.LoadGrid("Data/grid.txt");
         var words = WordLoader.LoadWords("Data/words.txt");
 
-        // Create an instance of the DfsSolver class to find words in the grid
         var solver = new DfsSolver();
         var results = solver.FindWords(grid, words);
 
-        // Display the results
-        Console.WriteLine("Words found in the grid:");
-        foreach (var result in results)
+        if (results.Count == 0)
         {
-            Console.WriteLine($"Found '{result.Word}' at positions:");
-            foreach (var pos in result.Positions)
+            AnsiConsole.MarkupLine("[bold red]No words found! Try editing the words.txt & grid.txt files.[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[green bold]{results.Count} out of {words.Count} words found![/]");
+            AnsiConsole.WriteLine();
+
+            // Prepare colors
+            var colors = new[] { "red", "orange1", "yellow", "lime", "cyan1", "blue", "purple_1", "magenta1" };
+
+            // Draw grid with column headers
+            var table = new Table();
+            table.Border(TableBorder.Square);
+            table.AddColumn(new TableColumn("[grey]pos[/]")); // label column (position)
+
+            for (int col = 0; col < grid.Columns; col++)
+                table.AddColumn(new TableColumn($"[grey]{col}[/]")); // column number labels
+
+            for (int row = 0; row < grid.Rows; row++)
             {
-                Console.WriteLine($"({pos.Row}, {pos.Col})");
+                var rowCells = new List<string> { $"[grey]{row}[/]" }; // row number labels
+
+                for (int col = 0; col < grid.Columns; col++)
+                {
+                    string cellText = grid.Grid[row, col].ToString();
+
+                    // Check if this position is part of a found word
+                    var matchingResult = results
+                        .Select((res, idx) => new { Result = res, Color = colors[idx % colors.Length] })
+                        .FirstOrDefault(r => r.Result.Positions.Any(p => p.Row == row && p.Col == col));
+
+                    if (matchingResult != null)
+                    {
+                        cellText = $"[{matchingResult.Color} bold]{cellText}[/]";
+                    }
+
+                    rowCells.Add(cellText);
+                }
+
+                table.AddRow(rowCells.ToArray());
             }
-            Console.WriteLine();
+
+            AnsiConsole.Write(table);
+            AnsiConsole.WriteLine();
+
+            // List found words
+            for (int i = 0; i < results.Count; i++)
+            {
+                var color = colors[i % colors.Length];
+                var word = results[i];
+                AnsiConsole.MarkupLine($"[bold {color}]Found '{word.Word}'[/] at positions: " +
+                    string.Join(", ", word.Positions.Select(p => $"({p.Row},{p.Col})")));
+            }
+
+            AnsiConsole.WriteLine();
+
+            // List not found words
+            var foundWords = results.Select(r => r.Word).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var notFoundWords = words.Where(w => !foundWords.Contains(w)).ToList();
+
+            if (notFoundWords.Count > 0)
+            {
+                AnsiConsole.MarkupLine("[bold red]Words not found:[/]");
+                foreach (var missing in notFoundWords)
+                {
+                    AnsiConsole.MarkupLine($"[grey]{missing}[/]");
+                }
+            }
         }
     }
 }
