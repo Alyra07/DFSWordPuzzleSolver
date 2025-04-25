@@ -1,13 +1,11 @@
-﻿namespace Services;
-
-// Loads the list of words from /App/Data/words.txt
-public static class WordLoader
+﻿namespace Services
 {
-    public static List<string> LoadWords(string filePath)
+    // Loader class for loading a list of words from a file (words.txt)
+    public class WordLoader : LoaderBase<List<string>>
     {
-        return File.ReadAllLines(filePath)
-                   .Where(line => !string.IsNullOrWhiteSpace(line)) // read only non-empty lines
-                   .Select(line => line.Trim().ToUpper()) // convert letters to uppercase
-                   .ToList();
+        public override List<string> Load(string filePath)
+        {
+            return ReadLines(filePath); // read all lines and clean them
+        }
     }
 }

@@ -1,33 +1,35 @@
 using Models;
 
-namespace Services;
-
-// This class loads the character grid from /App/Data/grid.txt
-public static class GridLoader
+namespace Services
 {
-    public static Puzzle LoadGrid(string filePath)
+    // This class loads the grid from /App/Data/grid.txt file
+    public class GridLoader : LoaderBase<Puzzle>
     {
-        var lines = File.ReadAllLines(filePath)
-                        .Where(line => !string.IsNullOrWhiteSpace(line)) // skip empty lines
-                        .Select(line => line.Replace(" ", "")) // remove spaces
-                        .ToList();
-
-        int rows = lines.Count; // number of rows
-        int cols = lines[0].Length; // number of columns
-
-        var grid = new char[rows, cols];
-
-        // check if all rows have the same number of columns
-        for (int i = 0; i < rows; i++)
+        public override Puzzle Load(string filePath)
         {
-            if (lines[i].Length != cols)
-                throw new InvalidOperationException($"Row {i} does not have the expected {cols} columns!");
+            var lines = ReadLines(filePath); // read all lines and clean them
 
-            // convert each character to uppercase and store in the grid
-            for (int j = 0; j < cols; j++)
-                grid[i, j] = char.ToUpper(lines[i][j]);
+            // check if file is empty
+            if (lines.Count == 0)
+                throw new InvalidOperationException("The grid file is empty!");
+
+            // Create a 2D char array (grid) with rows & cols based on the lines
+            int rows = lines.Count;
+            int cols = lines[0].Length;
+            var grid = new char[rows, cols];
+
+            for (int i = 0; i < rows; i++)
+            {
+                // check if all rows have the same number of columns
+                if (lines[i].Length != cols)
+                    throw new InvalidOperationException($"Row {i} does not have the expected {cols} columns!");
+
+                // Fill the grid with characters from the lines
+                for (int j = 0; j < cols; j++)
+                    grid[i, j] = lines[i][j];
+            }
+
+            return new Puzzle { Grid = grid }; // return the grid as Puzzle object
         }
-
-        return new Puzzle { Grid = grid }; // returns the grid as Puzzle object
     }
 }

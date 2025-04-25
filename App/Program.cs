@@ -1,6 +1,5 @@
 ﻿using Services;
 using Algorithm;
-using Models;
 
 // Spectre.Console is a library for creating pretty console applications in .NET :)
 using Spectre.Console;
@@ -9,11 +8,15 @@ class Program
 {
     static void Main(string[] args)
     {
-        // Load grid & words from /Data files
-        var grid = GridLoader.LoadGrid("Data/grid.txt");
-        var words = WordLoader.LoadWords("Data/words.txt");
+       // Create loader instances
+        var gridLoader = new GridLoader();
+        var wordLoader = new WordLoader();
 
-        // Initialize the solver and find words in the grid (DFS)
+        // Load grid & words from /Data txt files
+        var grid = gridLoader.Load("Data/grid.txt");
+        var words = wordLoader.Load("Data/words.txt");
+
+        // Initialize the solver and find words in the grid (DFS algorithm)
         var solver = new DfsSolver();
         var results = solver.FindWords(grid, words);
 
