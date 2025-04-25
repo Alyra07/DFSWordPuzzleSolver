@@ -1,6 +1,6 @@
 ﻿namespace Services
 {
-    // Loader class for loading a list of words from a file (words.txt)
+    // Loader class for loading the list of words from a file (words.txt)
     public class WordLoader : LoaderBase<List<string>>
     {
         public override List<string> Load(string filePath)
