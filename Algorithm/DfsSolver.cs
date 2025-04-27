@@ -14,7 +14,7 @@ public class DfsSolver
     {
         var results = new List<WordResult>(); // List to store found words & their positions
 
-        // iterate through each word from words.txt
+        // Iterate through each word from words.txt
         foreach (var word in words)
         {
             // check every cell in the grid as potential starting point of the word
@@ -25,9 +25,10 @@ public class DfsSolver
                     // if first character matches, start searching for the word
                     if (puzzle.Grid[row, col] == word[0])
                     {
-                        // run DFS to check if word can be formed starting from this cell
+                        // Run DFS to check if word can be formed starting from this cell
                         if (SearchWord(puzzle, word, row, col, out var positions))
                         {
+                            // if found, add the word and its positions to the results
                             results.Add(new WordResult { Word = word, Positions = positions });
                         }
                     }

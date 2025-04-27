@@ -8,7 +8,7 @@ class Program
 {
     static void Main(string[] args)
     {
-       // Create loader instances
+        // Create loader instances
         var gridLoader = new GridLoader();
         var wordLoader = new WordLoader();
 
